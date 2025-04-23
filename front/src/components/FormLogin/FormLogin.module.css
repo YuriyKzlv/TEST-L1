@@ -1,0 +1,23 @@
+.form__registration{
+  height: 70vh;
+  display:flex;
+  flex-direction: column;
+  gap:20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.form__password{
+  display: flex;
+  gap:20px;
+  flex-direction: column;
+}
+
+.form__title{
+  color: #0076cd;
+}
+
+.form__error{
+  color: tomato;
+  font-size: 12px;
+}

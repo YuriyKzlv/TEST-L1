@@ -1,0 +1,9 @@
+.news {
+    padding-top: 50px;
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+}

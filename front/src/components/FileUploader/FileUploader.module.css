@@ -1,0 +1,11 @@
+.form__images{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 10px 27px 10px;
+}
+
+.form__images img{
+  width: 90%;
+  margin-bottom: 10px;
+}
