@@ -60,7 +60,7 @@ export default function FormLogin() {
                 />
                 {
                     formik.errors[name] && formik.touched[name]
-                      ? <div className={styles.form__error}>{formik.errors[name]}</div> : null
+                      ? <div className={styles.form__error} data-testid="error-text">{formik.errors[name]}</div> : null
                   }
               </div>
             ))

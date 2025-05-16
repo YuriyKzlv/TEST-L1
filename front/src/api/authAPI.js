@@ -20,7 +20,7 @@ const authAPI = {
     return response.data;
   },
   registrationGoogle: async () => {
-    document.location.href = `${process.env.REACT_APP_BASE_URL}/api/auth/google`;
+    window.location.href = `${process.env.REACT_APP_BASE_URL}/api/auth/google`;
   },
   logout: async () => {
     const response = await instance.post('/api/auth/logout');
