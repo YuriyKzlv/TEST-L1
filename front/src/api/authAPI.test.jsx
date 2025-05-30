@@ -15,8 +15,8 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('authenticationAPI', () => {
-  test('send POST login with data and return data', async () => {
+describe('authAPI__requests', () => {
+  test('login with valid credentials should return token and call POST /api/auth/login', async () => {
     mockPost.mockResolvedValueOnce(makeResponse({ token: 'secret' }));
 
     const body = { login: 'user', password: 'secret' };
@@ -26,7 +26,7 @@ describe('authenticationAPI', () => {
     expect(result).toEqual({ token: 'secret' });
   });
 
-  test('refresh token', async () => {
+  test('refresh should return new token and call POST /api/auth/refresh', async () => {
     mockPost.mockResolvedValueOnce(makeResponse({ newToken: 'refreshSecret' }));
 
     const result = await authAPI.refresh();
@@ -35,7 +35,7 @@ describe('authenticationAPI', () => {
     expect(result).toEqual({ newToken: 'refreshSecret' });
   });
 
-  test('create user', async () => {
+  test('registration with FormData avatar should send multipart POST /api/auth/registration', async () => {
     mockPost.mockResolvedValueOnce(makeResponse({ ok: true }));
 
     const formData = new FormData();
@@ -49,7 +49,7 @@ describe('authenticationAPI', () => {
     );
   });
 
-  test('registration with Google, check url', async () => {
+  test('registrationGoogle should redirect to <BASE_URL>/api/auth/google', async () => {
     const { location } = window;
     let mockHref = '';
     delete window.location;
@@ -64,7 +64,7 @@ describe('authenticationAPI', () => {
     window.location = location;
   });
 
-  test('logout user and return response', async () => {
+  test('logout should call POST /api/auth/logout and return full response', async () => {
     const fullResponse = { status: 200, data: { ok: true } };
     mockPost.mockResolvedValueOnce(fullResponse);
 
@@ -73,10 +73,12 @@ describe('authenticationAPI', () => {
     expect(result).toBe(fullResponse);
   });
 
-  test('check user', async () => {
-    mockGet.mockResolvedValueOnce(makeResponse({ id: 7, login: 'me' }));
+  test('whoAmI should GET /api/auth/whoami and return user data', async () => {
+    const userData = { id: 7, login: 'me' };
+    mockGet.mockResolvedValueOnce(makeResponse(userData));
+
     const result = await authAPI.whoAmI();
     expect(mockGet).toHaveBeenCalledWith('/api/auth/whoami');
-    expect(result).toEqual({ id: 7, login: 'me' });
+    expect(result).toEqual(userData);
   });
 });

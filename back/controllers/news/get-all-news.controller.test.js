@@ -18,10 +18,10 @@ const createRes = () => {
   return res;
 };
 
-describe('news-controller__getAllNews', () => {
+describe('getAllNews__news-controller', () => {
   afterEach(jest.clearAllMocks);
 
-  test('success and return all news', async () => {
+  test('successful fetch, should respond 200 with news list', async () => {
     const fakeNews = [{ id: 1 }, { id: 2 }];
     mockFindAll.mockResolvedValue(fakeNews);
 
@@ -43,7 +43,7 @@ describe('news-controller__getAllNews', () => {
     expect(res.send).toHaveBeenCalledWith(fakeNews);
   });
 
-  test('if DB error return 500', async () => {
+  test('DB error, should respond 500 with error', async () => {
     const error = new Error('DB fail');
     mockFindAll.mockRejectedValue(error);
 

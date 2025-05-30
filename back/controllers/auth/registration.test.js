@@ -1,4 +1,6 @@
 /* eslint-disable no-undef */
+const { Op } = require('sequelize');
+
 jest.mock('../../constants', () => ({
   RESPONSE_STATUSES: {
     OK: 200,
@@ -9,10 +11,9 @@ jest.mock('../../constants', () => ({
 }));
 
 const mockReturnUserWithUpdatedToken = jest.fn();
-jest.mock(
-  './returnUserWithUpdatedToken.js',
-  () => ({ returnUserWithUpdatedToken: mockReturnUserWithUpdatedToken }),
-);
+jest.mock('./returnUserWithUpdatedToken.js', () => ({
+  returnUserWithUpdatedToken: mockReturnUserWithUpdatedToken,
+}));
 
 const mockFindOne = jest.fn();
 const mockCreate = jest.fn();
@@ -29,18 +30,18 @@ const makeRes = () => {
   return res;
 };
 
-describe('auth-controller__registration', () => {
-  const baseBody = {
-    firstName: 'Ivan',
-    lastName: 'Ivanov',
-    login: 'ivaniv',
-    password: '123456',
-    email: 'ivaniv@mail.com',
-  };
+const baseBody = {
+  firstName: 'Ivan',
+  lastName: 'Ivanov',
+  login: 'ivanov',
+  password: '123456',
+  email: 'ivaniv@mail.com',
+};
 
+describe('registration__auth-controller', () => {
   afterEach(jest.clearAllMocks);
 
-  test('400 if missing data', async () => {
+  test('missing data, should respond 400 and skip DB lookup', async () => {
     const req = { body: { ...baseBody, login: '   ' } };
     const res = makeRes();
 
@@ -49,5 +50,38 @@ describe('auth-controller__registration', () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: 'MISSING_DATA' });
     expect(mockFindOne).not.toHaveBeenCalled();
+  });
+
+  test('existing user, should respond 409 and not create', async () => {
+    const req = { body: baseBody };
+    const res = makeRes();
+
+    mockFindOne.mockResolvedValue({ id: 1 });
+
+    await registration(req, res);
+
+    expect(mockFindOne).toHaveBeenCalledWith({
+      where: { [Op.or]: [{ login: baseBody.login }, { email: baseBody.email }] },
+    });
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.send).toHaveBeenCalledWith({ message: 'USER_ALREADY_EXISTS' });
+    expect(mockCreate).not.toHaveBeenCalled();
+    expect(mockReturnUserWithUpdatedToken).not.toHaveBeenCalled();
+  });
+
+  test('DB error on create, should respond 500', async () => {
+    const req = { body: baseBody };
+    const res = makeRes();
+
+    mockFindOne.mockResolvedValue(null);
+    mockCreate.mockRejectedValue(new Error('DB failure'));
+
+    await registration(req, res);
+
+    expect(mockFindOne).toHaveBeenCalledTimes(1);
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.send).toHaveBeenCalledWith({ message: 'REGISTRATION_ERROR' });
+    expect(mockReturnUserWithUpdatedToken).not.toHaveBeenCalled();
   });
 });

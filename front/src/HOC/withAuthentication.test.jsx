@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+
 import withAuthentication from './withAuthentication';
 
 const mockUseSelector = jest.fn();
@@ -22,12 +23,12 @@ const renderWithRouter = (ui, { route = '/secret' } = {}) => render(
   </MemoryRouter>,
 );
 
-describe('withAuthentication HOC', () => {
+describe('withAuthentication__HOC', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test('shows component when user is authorized', () => {
+  test('authorized user, should render protected component', () => {
     mockUseSelector.mockReturnValue(true);
 
     renderWithRouter(<Protected />);
@@ -35,7 +36,7 @@ describe('withAuthentication HOC', () => {
     expect(screen.getByRole('heading', { name: /private zone/i })).toBeTruthy();
   });
 
-  test('redirects to login page when user is not authorized', () => {
+  test('unauthorized user, should redirect to /login', () => {
     mockUseSelector.mockReturnValue(false);
     renderWithRouter(<Protected />);
 

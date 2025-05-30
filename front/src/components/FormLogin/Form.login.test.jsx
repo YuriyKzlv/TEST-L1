@@ -1,15 +1,18 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+
 import '@testing-library/jest-dom';
 import {
   render, screen, waitFor, fireEvent,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+
 import FormLogin from './FormLogin';
 
 const mockDispatch = jest.fn();
 const mockNavigate = jest.fn();
+
 const renderWithRouter = () => render(
   <BrowserRouter>
     <FormLogin />
@@ -33,7 +36,7 @@ beforeEach(() => {
 });
 
 describe('FormLogin__component', () => {
-  test('check component render', () => {
+  test('render, default, should show login form with all fields and buttons', () => {
     renderWithRouter();
 
     const login = screen.getByRole('heading', { name: /LOGIN/i });
@@ -49,7 +52,7 @@ describe('FormLogin__component', () => {
     expect(googleButton).toBeInTheDocument();
   });
 
-  test('login with empty login and password', async () => {
+  test('submit, empty login and password, should show 2 validation errors', async () => {
     renderWithRouter();
 
     const loginButton = screen.getByRole('button', { type: 'submit', name: /LOGIN/i });
@@ -58,7 +61,7 @@ describe('FormLogin__component', () => {
     expect(textError).toHaveLength(2);
   });
 
-  test('login with < 5 symbols and password < 6 symbols', async () => {
+  test('submit, login < 5 chars & password < 6 chars → should show 2 validation errors', async () => {
     renderWithRouter();
 
     const inputLogin = screen.getByRole('textbox', { type: 'text', name: /login/i });
@@ -71,7 +74,7 @@ describe('FormLogin__component', () => {
     expect(textError).toHaveLength(2);
   });
 
-  test('btn block after blur empty field', async () => {
+  test('blur login, empty value → should disable submit button', async () => {
     renderWithRouter();
 
     const loginInput = screen.getByLabelText(/login/i);
@@ -83,14 +86,14 @@ describe('FormLogin__component', () => {
     ).toBeDisabled());
   });
 
-  test('show error after blur empty field', async () => {
+  test('blur login, empty value, should show validation error message', async () => {
     renderWithRouter();
     await userEvent.click(screen.getByLabelText(/login/i));
     await userEvent.tab();
     expect(await screen.findByTestId('error-text')).toBeVisible();
   });
 
-  test('dispatch(loginUser) call to correct values', async () => {
+  test('submit, valid credentials, should dispatch loginUser once', async () => {
     renderWithRouter();
 
     await userEvent.type(screen.getByLabelText(/login/i), 'valid');
@@ -106,13 +109,13 @@ describe('FormLogin__component', () => {
     await waitFor(() => expect(mockDispatch).toHaveBeenCalledTimes(1));
   });
 
-  test('dispatch registrationGoogle', async () => {
+  test('click Google button, should dispatch registrationGoogle once', async () => {
     renderWithRouter();
     await userEvent.click(screen.getByRole('button', { name: /google/i }));
     expect(mockDispatch).toHaveBeenCalledTimes(1);
   });
 
-  test('redirect to main page after login', () => {
+  test('isAuth true, should navigate to "/"', () => {
     useSelector.mockImplementation((sel) => sel({ auth: { isAuth: true } }));
     renderWithRouter();
     expect(mockNavigate).toHaveBeenCalledWith('/');

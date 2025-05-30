@@ -19,22 +19,22 @@ jest.mock('../controllers/news', () => ({ news: mockHandlers }));
 require('./news');
 
 describe('news__router', () => {
-  test('send GET getAllNews', () => {
+  test('GET "/", should map to getAllNews', () => {
     expect(mockRouter.get).toHaveBeenCalledWith('/', mockHandlers.getAllNews);
   });
 
-  test('send GET getById', () => {
+  test('GET "/:id", should map to getById', () => {
     expect(mockRouter.get).toHaveBeenCalledWith('/:id', mockHandlers.getById);
   });
 
-  test('send POST addNews', () => {
+  test('POST "/", should use upload.single("file") and map to addNews', () => {
     expect(mockMwSingle).toHaveBeenCalledWith('file');
 
     expect(mockRouter.post)
       .toHaveBeenCalledWith('/', 'mockUploadMW', mockHandlers.addNews);
   });
 
-  test('send DELETE deleteNews', () => {
+  test('DELETE "/:id", should map to deleteNews', () => {
     expect(mockRouter.delete)
       .toHaveBeenCalledWith('/:id', mockHandlers.deleteNews);
   });
