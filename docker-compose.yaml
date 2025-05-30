@@ -1,0 +1,46 @@
+version: '3.8' 
+services:
+  db:
+    image: postgres:16 
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5555:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: back
+    build:
+      context: ./back
+    depends_on:
+      - db
+    environment:
+      PORT: ${PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}  
+    ports:
+      - 4000:4000
+    restart: unless-stopped
+
+  frontend:
+    image: front
+    build:
+      context: ./front
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+    depends_on:
+      - backend
+    ports:
+      - 7000:5050
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+
+  
